@@ -17,6 +17,8 @@ export class DataManagementService {
     private readonly spreadsheetService: SpreadsheetService,
     @Inject('ORDER_REPOSITORY')
     private readonly orderRepository: Repository<Order>,
+    @Inject('ORDERED_ITEM_REPOSITORY')
+    private readonly orderedItemRepository: Repository<OrderedItem>,
   ) {}
 
   private dataSeed: DataSeed;
@@ -53,6 +55,8 @@ export class DataManagementService {
     Logger.log('ORDERS');
     Logger.log(orders[4]);
     Logger.log(orders[5]);
+    await this.orderedItemRepository.clear();
+    await this.orderRepository.query(`DELETE FROM User`);
     await this.orderRepository.save(orders);
   }
 
