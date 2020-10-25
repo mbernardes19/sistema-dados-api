@@ -1,28 +1,27 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { Workbook, Worksheet } from 'exceljs'
+import { Injectable } from '@nestjs/common';
+import { Workbook, Worksheet, Row } from 'exceljs'
+import { UploadedFile } from 'src/data-management/data-management.controller';
+import DataSeeder, { DataSeed } from 'src/data-management/interfaces/data-seeder';
+import OrderDto from 'src/data-management/interfaces/order-dto';
+import onlyUnique from '../../utils/array'
+import OrderedItemDto from 'src/data-management/interfaces/ordered-item-dto';
 
 @Injectable()
-export class SpreadsheetService implements OnModuleInit {
-    private currentSpreadsheet: Worksheet;
+export class SpreadsheetService implements DataSeeder {
+    private wb = new Workbook()
 
-    async onModuleInit(): Promise<void> {
-        const res = await this.isSpreadsheetValid();
-        Logger.log(res);
-    }
-
-    private async getSpreadsheet () {
-        if (!this.currentSpreadsheet) {
-            const workbook = new Workbook();
-            const wb = await workbook.xlsx.readFile(__dirname + '/../Export.xlsx')
-            this.currentSpreadsheet = wb.worksheets[0];
-            return this.currentSpreadsheet;
-        } else {
-            return this.currentSpreadsheet;
+    toDataSeed(spreadsheet: Worksheet): DataSeed {
+        return {
+            orders: this.getAllOrdersDto(spreadsheet),
         }
     }
 
-    async isSpreadsheetValid(): Promise<boolean> {
-        const spreadsheet = await this.getSpreadsheet();
+    async toSpreadsheet (file: UploadedFile) {
+        const workbook = await this.wb.xlsx.load(file.buffer);
+        return workbook.getWorksheet(1);
+    }
+
+    isSpreadsheetValid(spreadsheet: Worksheet): boolean {
         const verifications = []
         spreadsheet.getRow(1).eachCell((cell, colNumber) => {
             if (colNumber === 1 && cell.text === 'Nome Cliente')
@@ -74,12 +73,75 @@ export class SpreadsheetService implements OnModuleInit {
         return verifications.length === spreadsheet.getRow(1).cellCount ? true : false
     }
 
-    async getAllEnterprises() {
-        const spreadsheet = await this.getSpreadsheet();
-        const enterpriseNames: string[] = []
-        spreadsheet.getColumn(1).eachCell(cell => {
-            enterpriseNames.push(cell.text)
+    private getAllOrdersDto(spreadsheet: Worksheet): OrderDto[] {
+        const orderRecords = []
+        spreadsheet.getColumn(3).eachCell(cell => {
+            orderRecords.push(cell.text)
         });
-        return enterpriseNames;
+        const orderNumbers = orderRecords.filter(onlyUnique)
+        orderNumbers.shift()
+        return orderNumbers.map(orderNumber => this.getOrder(spreadsheet, orderNumber))
+    }
+
+    private getOrder(spreadsheet: Worksheet, orderNumber: string): OrderDto {
+        // 1 - Find order rows
+        const orderRows = this.getOrderRows(spreadsheet, orderNumber);
+        // 2 - Get other order data
+        const enterpriseName = orderRows[0].getCell(1).text;
+        const orderStatus = orderRows[0].getCell(2).text;
+        const orderCode = orderRows[0].getCell(5).text;
+        const emissionDate = new Date(orderRows[0].getCell(6).text);
+        const OcNumber = orderRows[0].getCell(7).text;
+        const OcItemNumber = orderRows[0].getCell(8).text;
+        const billingPredictionDate = orderRows[0].getCell(17).text === '00/00/0000' ? null : new Date(orderRows[0].getCell(17).text);
+        const [billDocNumber] = orderRows.filter(row => row.getCell(18).text ? true : false);
+        const [billingDate] = orderRows.filter(row => row.getCell(19).text ? true : false);
+        const collectionNumber = orderRows[0].getCell(21).text;
+
+        return {
+            enterpriseName,
+            orderNumber,
+            orderedItems: this.getOrdersOrderedItems(orderRows),
+            orderStatus,
+            orderCode,
+            emissionDate,
+            OcNumber,
+            OcItemNumber,
+            billingPredictionDate: billingPredictionDate,
+            billDocNumber: billDocNumber ? billDocNumber.getCell(18).text : null,
+            billingDate: billingDate ? new Date(billingDate.getCell(19).text) : null,
+            collectionNumber
+        }
+    }
+
+    private getOrderRows(spreadsheet: Worksheet, orderNumber: string): Row[]  {
+        const orderRows: Row[] = []
+        spreadsheet.eachRow(row => {
+            if (row.findCell(3).text === orderNumber) {
+                orderRows.push(row);
+            }
+        })
+        return orderRows;
+    }
+
+    private getOrdersOrderedItems(orderRows: Row[]): OrderedItemDto[] {
+        let idGeneration = 0;
+        return orderRows.map(orderRow => {
+            return {
+                id: idGeneration++,
+                itemNumber: parseInt(orderRow.getCell(9).text),
+                orderNumber: orderRow.getCell(3).text,
+                status: orderRow.getCell(15).text,
+                prodServInfo: {
+                    code: orderRow.getCell(10).text,
+                    name: orderRow.getCell(11).text,
+                    complement: orderRow.getCell(20).text
+                },
+                requestedQuantity: parseInt(orderRow.getCell(12).text),
+                availableQuantity: parseInt(orderRow.getCell(13).text),
+                pendingQuantity: parseInt(orderRow.getCell(14).text),
+                deliveryDate: new Date(orderRow.getCell(16).text),
+            }
+        })
     }
 }
