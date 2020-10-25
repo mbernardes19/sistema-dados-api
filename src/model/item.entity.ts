@@ -1,10 +1,12 @@
-import {Entity, Column, PrimaryColumn } from 'typeorm';
+import {Entity, PrimaryColumn, OneToMany } from 'typeorm';
+import { OrderedItem } from './ordered-item.entity';
 
-@Entity()
+@Entity('Item')
 export class Item {
+
     @PrimaryColumn()
     number: number;
 
-    @Column()
-    status: string;
+    @OneToMany(() => OrderedItem, orderedItem => orderedItem.item)
+    orderedItems: OrderedItem[]
 }

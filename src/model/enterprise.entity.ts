@@ -1,10 +1,14 @@
-import {Entity, Column, PrimaryColumn } from 'typeorm';
+import {Entity, Column, PrimaryColumn, OneToMany } from 'typeorm';
+import { Order } from './order.entity';
 
-@Entity()
+@Entity('Enterprise')
 export class Enterprise {
-    @PrimaryColumn()
+    @Column()
     id: number
 
-    @Column()
+    @PrimaryColumn()
     name: string;
+
+    @OneToMany(() => Order, order => order.enterprise)
+    orders: Order[]
 }

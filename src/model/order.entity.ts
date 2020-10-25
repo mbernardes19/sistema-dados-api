@@ -1,8 +1,8 @@
-import {Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
-import { Item } from './item.entity';
-import { ProfServInfo } from './prod-serv-info';
+import {Entity, Column, PrimaryColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Enterprise } from './enterprise.entity';
+import { OrderedItem } from './ordered-item.entity';
 
-@Entity()
+@Entity('Order')
 export class Order {
     @PrimaryColumn()
     orderNumber: string;
@@ -10,8 +10,10 @@ export class Order {
     @Column()
     orderStatus: string;
 
-    @Column()
-    items: Item[];
+    @OneToMany(() => OrderedItem, orderedItem => orderedItem.order, {
+        cascade: ['insert']
+    })
+    orderedItems: OrderedItem[];
 
     @Column()
     orderCode: string;
@@ -25,36 +27,20 @@ export class Order {
     @Column()
     OcItemNumber: string;
 
-    @Column()
-    itemOrdered: number;
-
-    @Column()
-    prodServCodeInfo: ProfServInfo;
-
-    @Column()
-    itemStatus: string;
-
-    @Column()
-    requestedQuantity: number;
-
-    @Column()
-    billedQuantity: number;
-
-    @Column()
-    pendingQuantity: number;
-
-    @Column()
-    deliveryDate: Date;
-
-    @Column()
+    @Column({nullable: true})
     billingPredictionDate: Date;
 
-    @Column()
-    billAvailableDocDate: string;
+    @Column({nullable: true})
+    billDocNumber: string;
 
-    @Column()
+    @Column({nullable: true})
     billingDate: Date;
 
     @Column()
     collectionNumber: string;
+
+    @ManyToOne(() => Enterprise, enterprise => enterprise.orders, {
+        cascade: ['insert']
+    })
+    enterprise: Enterprise
 }
