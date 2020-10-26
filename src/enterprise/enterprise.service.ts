@@ -20,4 +20,8 @@ export class EnterpriseService {
         })
         await this.enterpriseRepository.save(enterprises);
     }
+
+    async getByEnterpriseName(enterpriseName: string) {
+      return await this.enterpriseRepository.findOne(enterpriseName)
+    }
   }
