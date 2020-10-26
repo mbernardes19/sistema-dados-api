@@ -53,11 +53,8 @@ export class DataManagementService {
       order.enterprise = this.createEnterprise(data.enterpriseName);
       orders.push(order);
     })
-    Logger.log('ORDERS');
-    Logger.log(orders[4]);
-    Logger.log(orders[5]);
     await this.orderedItemRepository.clear();
-    await this.orderRepository.query(`DELETE FROM User`);
+    // await this.orderRepository.query(`DELETE FROM Order`);
     await this.orderRepository.save(orders);
   }
 
