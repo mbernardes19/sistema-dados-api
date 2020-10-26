@@ -9,6 +9,7 @@ import { Item } from 'src/model/item.entity';
 import { ProdServInfo } from 'src/model/prod-serv-info.entity';
 import { OrderedItem } from 'src/model/ordered-item.entity';
 import OrderedItemDto from './interfaces/ordered-item-dto';
+import InvalidSpreadsheetStructureError from './errors/InvalidSpreadsheetStructure';
 
 @Injectable()
 export class DataManagementService {
@@ -30,7 +31,7 @@ export class DataManagementService {
       this.dataSeed = this.spreadsheetService.toDataSeed(spreadsheet);
       await this.populateOrders();
     } else {
-      throw new Error('Invalid spreadsheet structure');
+      throw new InvalidSpreadsheetStructureError('Invalid spreadsheet structure');
     }
   }
 

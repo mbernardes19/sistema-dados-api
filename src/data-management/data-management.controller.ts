@@ -2,6 +2,7 @@ import { Controller, Post, UseInterceptors, UploadedFiles, UploadedFile, Get, Re
 import { DataManagementService } from './data-management.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import InvalidSpreadsheetStructureError from './errors/InvalidSpreadsheetStructure';
 
 export type UploadedFile = {
   filedname: string,
@@ -22,8 +23,11 @@ export class DataManagementController {
     try {
       await this.dataManagementService.importDataFromXls(file);
     } catch (err) {
-      console.log(err)
-      throw new HttpException('Planilha em formato incorreto. Certifique-se de estar enviando uma planilha com as coluna corretas.', HttpStatus.BAD_REQUEST)
+      if (err instanceof InvalidSpreadsheetStructureError) {
+        throw new HttpException('Planilha em formato incorreto. Certifique-se de estar enviando uma planilha com as coluna corretas.', HttpStatus.BAD_REQUEST)
+      } else {
+        throw new HttpException('Ocorreu um erro ao atualizar os dados do sistema. Por favor, tente novamente mais tarde.', HttpStatus.BAD_REQUEST)
+      }
     }
   }
 
