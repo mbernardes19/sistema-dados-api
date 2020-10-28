@@ -14,7 +14,6 @@ export class EnterpriseService {
         const enterprises: Enterprise[] = [];
         enterpriseDto.forEach(dto => {
             const enterprise = new Enterprise();
-            enterprise.id = dto.id;
             enterprise.name = dto.name
             enterprises.push(enterprise);
         })
@@ -23,5 +22,9 @@ export class EnterpriseService {
 
     async getByEnterpriseName(enterpriseName: string) {
       return await this.enterpriseRepository.findOne(enterpriseName)
+    }
+
+    async getAllEnterprises(): Promise<Enterprise[]> {
+      return await this.enterpriseRepository.find();
     }
   }
