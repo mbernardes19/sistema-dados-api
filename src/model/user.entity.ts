@@ -1,10 +1,10 @@
-import {Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {Entity, Column, ManyToOne, PrimaryGeneratedColumn} from 'typeorm';
 import { Enterprise } from './enterprise.entity';
 
 @Entity('User')
 export class User {
     @PrimaryGeneratedColumn()
-    id: number;
+    id?: number;
 
     @Column()
     email: string;

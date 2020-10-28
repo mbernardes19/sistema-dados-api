@@ -125,10 +125,8 @@ export class SpreadsheetService implements DataSeeder {
     }
 
     private getOrdersOrderedItems(orderRows: Row[]): OrderedItemDto[] {
-        let idGeneration = 0;
         return orderRows.map(orderRow => {
             return {
-                id: idGeneration++,
                 itemNumber: parseInt(orderRow.getCell(9).text),
                 orderNumber: orderRow.getCell(3).text,
                 status: orderRow.getCell(15).text,

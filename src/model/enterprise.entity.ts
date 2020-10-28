@@ -1,12 +1,9 @@
-import {Entity, Column, PrimaryColumn, OneToMany } from 'typeorm';
+import {Entity, PrimaryColumn, OneToMany, Generated, Column } from 'typeorm';
 import { Order } from './order.entity';
 import { User } from './user.entity';
 
 @Entity('Enterprise')
 export class Enterprise {
-    @Column()
-    id: number
-
     @PrimaryColumn()
     name: string;
 

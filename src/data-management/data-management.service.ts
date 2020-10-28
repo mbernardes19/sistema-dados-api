@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { SpreadsheetService } from 'src/spreadsheet/spreadsheet.service';
 import { UploadedFile } from './data-management.controller';
 import { DataSeed } from './interfaces/data-seeder';
@@ -81,9 +81,7 @@ export class DataManagementService {
 
   private createEnterprise(enterpriseName: string): Enterprise {
     const enterprise = new Enterprise();
-    const id = Math.trunc(Math.random()*1000);
     enterprise.name = enterpriseName
-    enterprise.id = id;
     return enterprise
   }
 
