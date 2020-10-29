@@ -4,7 +4,7 @@ export const menu: Menu[] = [
     { 
         id: 'SEARCH',
         text: 'Consultar pedidos',
-        href: '/'
+        href: '/consultar-pedidos'
     },
 ]
 
@@ -12,7 +12,7 @@ export const adminMenu: Menu[] = [
     { 
         id: 'SEARCH',
         text: 'Consultar pedidos',
-        href: '/'
+        href: '/consultar-pedidos'
     },
     { 
         id: 'PERSON_ADD',
