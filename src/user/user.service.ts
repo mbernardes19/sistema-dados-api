@@ -5,6 +5,8 @@ import UserDto from 'src/data-management/interfaces/user.dto';
 import { EnterpriseService } from 'src/enterprise/enterprise.service';
 import UserAlreadyRegisteredError from './errors/UserAlreadyRegisteredError';
 import EmptyUserError from './errors/EmptyUserError';
+import { Order } from 'src/model/order.entity';
+import { differenceInMilliseconds } from 'date-fns'
 
 @Injectable()
 export class UserService {
@@ -47,5 +49,28 @@ export class UserService {
         user.isAdmin = userDto.isAdmin;
         user.enterprise = await this.enterpriseService.getByEnterpriseName(userDto.enterpriseName)
         await this.userRepository.save(user);
+    }
+
+    async getUserOrders(user: User): Promise<Order[]> {
+        const orders = await this.enterpriseService.getEntepriseOrders(user.enterprise.name);
+        const ordersWithDeliveryDate = orders.map(order => {
+            const deliveryDate = this.getFarestDeliveryDate(order)
+            order.deliveryDate = deliveryDate;
+            return order;
+        })
+        return ordersWithDeliveryDate;
+    }
+
+    private getFarestDeliveryDate(order: Order): Date {
+        let difference = 0;
+        let farestDate = new Date();
+        order.orderedItems.map(item => {
+            const diff = differenceInMilliseconds(item.deliveryDate, new Date())
+            if (diff > difference) {
+                difference = diff;
+                farestDate = item.deliveryDate;
+            }
+        })
+        return farestDate;
     }
 }
