@@ -43,4 +43,6 @@ export class Order {
         cascade: ['insert']
     })
     enterprise: Enterprise
+
+    deliveryDate?: Date;
 }
