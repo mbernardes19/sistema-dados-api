@@ -2,12 +2,16 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm/repository/Repository';
 import { Enterprise } from 'src/model/enterprise.entity';
 import EnterpriseDto from 'src/data-management/interfaces/enterprise-dto';
+import { OrderService } from 'src/order/order.service';
+import { Order } from 'src/model/order.entity';
 
 @Injectable()
 export class EnterpriseService {
   constructor(
     @Inject('ENTERPRISE_REPOSITORY')
     private readonly enterpriseRepository: Repository<Enterprise>,
+    @Inject('OrderService')
+    private readonly orderService: OrderService
   ) {}
 
     async create(enterpriseDto: EnterpriseDto[]): Promise<void> {
@@ -26,5 +30,9 @@ export class EnterpriseService {
 
     async getAllEnterprises(): Promise<Enterprise[]> {
       return await this.enterpriseRepository.find();
+    }
+
+    async getEntepriseOrders(enterpriseName: string): Promise<Order[]> {
+      return this.orderService.getOrdersFromEnterprise(enterpriseName);
     }
   }

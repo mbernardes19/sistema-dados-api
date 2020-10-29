@@ -3,9 +3,10 @@ import { enterpriseProviders } from './enterprise.provider';
 import { DatabaseModule } from '../database/database.module';
 import { EnterpriseService } from './enterprise.service';
 import { EnterpriseController } from './enterprise.controller';
+import { OrderModule } from 'src/order/order.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, OrderModule],
   providers: [
     ...enterpriseProviders,
     EnterpriseService
