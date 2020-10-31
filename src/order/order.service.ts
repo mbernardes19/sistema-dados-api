@@ -10,6 +10,6 @@ export class OrderService {
     ) {}
 
     async getOrdersFromEnterprise(enterpriseName: string): Promise<Order[]> {
-        return await this.orderRepository.find({ order: { orderNumber: 'ASC' }, relations: ['orderedItems'] , where: {enterprise: { name: enterpriseName }}})
+        return await this.orderRepository.find({ order: { orderNumber: 'ASC'}, relations: ['orderedItems', 'enterprise'] , where: {enterprise: { name: enterpriseName }}})
     }
 }

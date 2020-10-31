@@ -7,6 +7,7 @@ import UserAlreadyRegisteredError from './errors/UserAlreadyRegisteredError';
 import EmptyUserError from './errors/EmptyUserError';
 import { Order } from 'src/model/order.entity';
 import { differenceInMilliseconds } from 'date-fns'
+import { Enterprise } from 'src/model/enterprise.entity';
 
 @Injectable()
 export class UserService {
@@ -52,25 +53,12 @@ export class UserService {
     }
 
     async getUserOrders(user: User): Promise<Order[]> {
-        const orders = await this.enterpriseService.getEntepriseOrders(user.enterprise.name);
-        const ordersWithDeliveryDate = orders.map(order => {
-            const deliveryDate = this.getFarestDeliveryDate(order)
-            order.deliveryDate = deliveryDate;
-            return order;
-        })
-        return ordersWithDeliveryDate;
+        return await this.enterpriseService.getEntepriseOrders(user.enterprise.name);
     }
 
-    private getFarestDeliveryDate(order: Order): Date {
-        let difference = 0;
-        let farestDate = new Date();
-        order.orderedItems.map(item => {
-            const diff = differenceInMilliseconds(item.deliveryDate, new Date())
-            if (diff > difference) {
-                difference = diff;
-                farestDate = item.deliveryDate;
-            }
-        })
-        return farestDate;
+    async getAllUsersFromEnterprise(enterpriseName: string): Promise<User[]> {
+        const enterprise = new Enterprise();
+        enterprise.name = enterpriseName;
+        return await this.userRepository.find({ where: { enterprise: enterprise }, relations: ['enterprise', 'orders'] })
     }
 }

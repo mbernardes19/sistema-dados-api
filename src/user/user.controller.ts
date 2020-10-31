@@ -11,6 +11,4 @@ export class UserController {
     async getUserOrders(@Request() req) {
         return this.userService.getUserOrders(req.user)
     }
-
-
 }

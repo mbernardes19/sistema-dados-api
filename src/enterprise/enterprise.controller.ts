@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Param, Query } from '@nestjs/common';
 import { EnterpriseService } from './enterprise.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
@@ -14,4 +14,17 @@ export class EnterpriseController {
     getAll() {
         return this.enterpriseService.getAllEnterprises();
     }
+
+    @Roles('admin')
+    @Get('orders')
+    getEnterpriseOrders(@Query('enterpriseName') enterpriseName: string) {
+        console.log(enterpriseName)
+        return this.enterpriseService.getEntepriseOrders(enterpriseName)
+    }
+
+    // @Roles('admin')
+    // @Get('users')
+    // getEnterpriseUsers(@Query('enterpriseName') enterpriseName: string) {
+    //     return this.enterpriseService.getEnterpriseUsers(enterpriseName);
+    // }
 }
