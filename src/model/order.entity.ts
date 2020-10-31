@@ -1,6 +1,7 @@
 import {Entity, Column, PrimaryColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Enterprise } from './enterprise.entity';
 import { OrderedItem } from './ordered-item.entity';
+import { User } from './user.entity';
 
 @Entity('Order')
 export class Order {
@@ -43,6 +44,11 @@ export class Order {
         cascade: ['insert']
     })
     enterprise: Enterprise
+
+    @ManyToOne(() => User, user => user.orders, {
+        nullable: true
+    })
+    user: User
 
     deliveryDate?: Date;
 }

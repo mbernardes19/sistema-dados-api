@@ -1,3 +1,5 @@
+import OrderDto from "./order-dto";
+
 export default interface UserDto {
     id?: number;
     email: string;
@@ -5,4 +7,5 @@ export default interface UserDto {
     password: string;
     isAdmin: boolean;
     enterpriseName: string;
+    orders?: OrderDto[]
 }

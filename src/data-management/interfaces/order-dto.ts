@@ -1,4 +1,5 @@
 import OrderedItemDto from "./ordered-item-dto";
+import UserDto from "./user.dto";
 
 export default interface OrderDto {
     enterpriseName: string,
@@ -13,4 +14,5 @@ export default interface OrderDto {
     billDocNumber: string;
     billingDate: Date;
     collectionNumber: string;
+    user?: UserDto;
 }
