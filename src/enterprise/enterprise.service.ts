@@ -36,7 +36,12 @@ export class EnterpriseService {
     }
 
     async getEntepriseOrders(enterpriseName: string): Promise<Order[]> {
-      const orders = await this.orderService.getOrdersFromEnterprise(enterpriseName);
+      let orders;
+      if (!enterpriseName) {
+        orders = await this.orderService.getOrdersFromAllEnterprises();
+      } else {
+        orders = await this.orderService.getOrdersFromEnterprise(enterpriseName);
+      }
       const ordersWithDeliveryDate = orders.map(order => {
         const deliveryDate = this.getFarestDeliveryDate(order)
         order.deliveryDate = deliveryDate;
