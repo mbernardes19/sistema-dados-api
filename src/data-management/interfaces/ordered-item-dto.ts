@@ -7,7 +7,9 @@ export default interface OrderedItemDto {
     status: string;
     prodServInfo: ProdServInfoDto;
     requestedQuantity: number;
-    availableQuantity: number;
+    billedQuantity: number;
     pendingQuantity: number;
     deliveryDate: Date;
+    invoiceNumber: string;
+    invoiceEmissionDate: Date;
 }

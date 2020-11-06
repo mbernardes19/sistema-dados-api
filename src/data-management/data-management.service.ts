@@ -41,8 +41,6 @@ export class DataManagementService {
       const order = new Order();
       order.OcItemNumber = data.OcItemNumber;
       order.OcNumber = data.OcNumber;
-      order.billDocNumber = data.billDocNumber;
-      order.billingDate = data.billingDate;
       order.billingPredictionDate = data.billingPredictionDate;
       order.collectionNumber = data.collectionNumber;
       order.emissionDate = data.emissionDate;
@@ -72,9 +70,11 @@ export class DataManagementService {
         status: dto.status,
         prodServInfo,
         requestedQuantity: dto.requestedQuantity,
-        availableQuantity: dto.availableQuantity,
+        billedQuantity: dto.billedQuantity,
         pendingQuantity: dto.pendingQuantity,
-        deliveryDate: dto.deliveryDate
+        deliveryDate: dto.deliveryDate,
+        invoiceNumber: dto.invoiceNumber,
+        invoiceEmissionDate: dto.invoiceEmissionDate
     }
     })
   }

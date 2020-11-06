@@ -94,8 +94,6 @@ export class SpreadsheetService implements DataSeeder {
         const OcNumber = orderRows[0].getCell(7).text;
         const OcItemNumber = orderRows[0].getCell(8).text;
         const billingPredictionDate = orderRows[0].getCell(17).text === '00/00/0000' ? null : new Date(orderRows[0].getCell(17).text);
-        const [billDocNumber] = orderRows.filter(row => row.getCell(18).text ? true : false);
-        const [billingDate] = orderRows.filter(row => row.getCell(19).text ? true : false);
         const collectionNumber = orderRows[0].getCell(21).text;
 
         return {
@@ -108,8 +106,6 @@ export class SpreadsheetService implements DataSeeder {
             OcNumber,
             OcItemNumber,
             billingPredictionDate: billingPredictionDate,
-            billDocNumber: billDocNumber ? billDocNumber.getCell(18).text : null,
-            billingDate: billingDate ? new Date(billingDate.getCell(19).text) : null,
             collectionNumber
         }
     }
@@ -127,7 +123,7 @@ export class SpreadsheetService implements DataSeeder {
     private getOrdersOrderedItems(orderRows: Row[]): OrderedItemDto[] {
         return orderRows.map(orderRow => {
             return {
-                itemNumber: parseInt(orderRow.getCell(9).text),
+                itemNumber: orderRow.getCell(9).text ? parseInt(orderRow.getCell(9).text) : null,
                 orderNumber: orderRow.getCell(3).text,
                 status: orderRow.getCell(15).text,
                 prodServInfo: {
@@ -136,9 +132,11 @@ export class SpreadsheetService implements DataSeeder {
                     complement: orderRow.getCell(20).text
                 },
                 requestedQuantity: parseInt(orderRow.getCell(12).text),
-                availableQuantity: parseInt(orderRow.getCell(13).text),
+                billedQuantity: parseInt(orderRow.getCell(13).text),
                 pendingQuantity: parseInt(orderRow.getCell(14).text),
                 deliveryDate: new Date(orderRow.getCell(16).text),
+                invoiceNumber: orderRow.getCell(18).text ? orderRow.getCell(18).text : null,
+                invoiceEmissionDate: orderRow.getCell(19).text ? new Date(orderRow.getCell(19).text) : null
             }
         })
     }

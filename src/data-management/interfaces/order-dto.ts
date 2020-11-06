@@ -11,8 +11,6 @@ export default interface OrderDto {
     OcNumber: string;
     OcItemNumber: string;
     billingPredictionDate: Date;
-    billDocNumber: string;
-    billingDate: Date;
     collectionNumber: string;
     user?: UserDto;
 }

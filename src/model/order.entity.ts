@@ -31,12 +31,6 @@ export class Order {
     @Column({nullable: true})
     billingPredictionDate: Date;
 
-    @Column({nullable: true})
-    billDocNumber: string;
-
-    @Column({nullable: true})
-    billingDate: Date;
-
     @Column()
     collectionNumber: string;
 

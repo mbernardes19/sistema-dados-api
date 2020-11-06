@@ -9,7 +9,7 @@ export class OrderedItem {
     id?: number;
 
     @ManyToOne(() => Item, item => item.orderedItems, {
-        cascade: ['insert']
+        cascade: ['insert'], nullable: true
     })
     item: Item
 
@@ -25,13 +25,19 @@ export class OrderedItem {
     requestedQuantity: number;
     
     @Column()
-    availableQuantity: number;
+    billedQuantity: number;
     
     @Column()
     pendingQuantity: number;
     
     @Column()
     deliveryDate: Date;
+
+    @Column({ nullable: true })
+    invoiceNumber: string;
+
+    @Column({ nullable: true })
+    invoiceEmissionDate: Date;
 
     @ManyToOne(() => Order, order => order.orderedItems)
     order?: Order
