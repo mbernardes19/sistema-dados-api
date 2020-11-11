@@ -54,16 +54,20 @@ export class EnterpriseService {
       let difference = 0;
       let farestDate = new Date();
       order.orderedItems.map(item => {
-          const diff = differenceInMilliseconds(item.deliveryDate, new Date())
+        if (item.deliveryDate) {
+          let diff;
+          if (item.deliveryDate > new Date()) {
+            diff = differenceInMilliseconds(item.deliveryDate, new Date())
+          } else {
+            diff = differenceInMilliseconds(new Date(), item.deliveryDate)
+          }
+          
           if (diff > difference) {
               difference = diff;
               farestDate = item.deliveryDate;
           }
+        }
       })
       return farestDate;
     }
-
-    // async getEnterpriseUsers(enterpriseName: string): Promise<User[]> {
-    //   return await this.userService.getAllUsersFromEnterprise(enterpriseName);
-    // }
   }

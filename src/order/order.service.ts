@@ -25,7 +25,7 @@ export class OrderService {
         }) 
         const deliveryDate = this.getFarestDeliveryDate(order)
         order.deliveryDate = deliveryDate;
-        console.log('ORDER', order);
+        // console.log('ORDER', order);
         return order;
     }
 
@@ -33,12 +33,20 @@ export class OrderService {
         let difference = 0;
         let farestDate = new Date();
         order.orderedItems.map(item => {
-            const diff = differenceInMilliseconds(item.deliveryDate, new Date())
+          if (item.deliveryDate) {
+            let diff;
+            if (item.deliveryDate > new Date()) {
+              diff = differenceInMilliseconds(item.deliveryDate, new Date())
+            } else {
+              diff = differenceInMilliseconds(new Date(), item.deliveryDate)
+            }
+            
             if (diff > difference) {
                 difference = diff;
                 farestDate = item.deliveryDate;
             }
+          }
         })
         return farestDate;
-      }
+    }
 }

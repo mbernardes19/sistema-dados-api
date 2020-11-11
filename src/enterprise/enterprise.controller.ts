@@ -18,13 +18,6 @@ export class EnterpriseController {
     @Roles('admin')
     @Get('orders')
     getEnterpriseOrders(@Query('enterpriseName') enterpriseName: string) {
-        console.log(enterpriseName)
         return this.enterpriseService.getEntepriseOrders(enterpriseName)
     }
-
-    // @Roles('admin')
-    // @Get('users')
-    // getEnterpriseUsers(@Query('enterpriseName') enterpriseName: string) {
-    //     return this.enterpriseService.getEnterpriseUsers(enterpriseName);
-    // }
 }
