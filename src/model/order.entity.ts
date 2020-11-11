@@ -12,7 +12,7 @@ export class Order {
     orderStatus: string;
 
     @OneToMany(() => OrderedItem, orderedItem => orderedItem.order, {
-        cascade: ['insert']
+        cascade: ['insert', 'update', 'remove'], onDelete: 'CASCADE'
     })
     orderedItems: OrderedItem[];
 

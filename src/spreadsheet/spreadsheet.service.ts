@@ -48,7 +48,7 @@ export class SpreadsheetService implements DataSeeder {
                 verifications.push(true)
             if (colNumber === 12 && cell.text === 'Quant. Solicitada')
                 verifications.push(true)
-            if (colNumber === 13 && cell.text === 'Quant. Liberada')
+            if (colNumber === 13 && cell.text === 'Quant. Faturada')
                 verifications.push(true)
             if (colNumber === 14 && cell.text === 'Quant. Pendente')
                 verifications.push(true)                
@@ -66,7 +66,7 @@ export class SpreadsheetService implements DataSeeder {
                 verifications.push(true)
             if (colNumber === 21 && cell.text === 'Info Plus  5')
                 verifications.push(true)
-            if (colNumber === 22 && cell.text === 'DEVOLUÇÃO')
+            if (colNumber === 22 && cell.text === 'NÚMERO DE COLETA:')
                 verifications.push(true)
         })
         
@@ -78,8 +78,9 @@ export class SpreadsheetService implements DataSeeder {
         spreadsheet.getColumn(3).eachCell(cell => {
             orderRecords.push(cell.text)
         });
-        const orderNumbers = orderRecords.filter(onlyUnique)
-        orderNumbers.shift()
+        const orders = orderRecords.filter(onlyUnique)
+        orders.shift();
+        const orderNumbers = orders.filter(orderNumber => orderNumber !== 'Nr. Pedido' || orderNumber !== '')
         return orderNumbers.map(orderNumber => this.getOrder(spreadsheet, orderNumber))
     }
 
@@ -123,7 +124,7 @@ export class SpreadsheetService implements DataSeeder {
     private getOrdersOrderedItems(orderRows: Row[]): OrderedItemDto[] {
         return orderRows.map(orderRow => {
             return {
-                itemNumber: orderRow.getCell(9).text ? parseInt(orderRow.getCell(9).text) : null,
+                itemNumber: orderRow.getCell(9).text && !isNaN(parseInt(orderRow.getCell(9).text)) ? parseInt(orderRow.getCell(9).text) : 0,
                 orderNumber: orderRow.getCell(3).text,
                 status: orderRow.getCell(15).text,
                 prodServInfo: {
@@ -134,9 +135,10 @@ export class SpreadsheetService implements DataSeeder {
                 requestedQuantity: parseInt(orderRow.getCell(12).text),
                 billedQuantity: parseInt(orderRow.getCell(13).text),
                 pendingQuantity: parseInt(orderRow.getCell(14).text),
-                deliveryDate: new Date(orderRow.getCell(16).text),
+                deliveryDate: orderRow.getCell(16).text ? new Date(orderRow.getCell(16).text) : null,
                 invoiceNumber: orderRow.getCell(18).text ? orderRow.getCell(18).text : null,
-                invoiceEmissionDate: orderRow.getCell(19).text ? new Date(orderRow.getCell(19).text) : null
+                invoiceEmissionDate: orderRow.getCell(19).text ? new Date(orderRow.getCell(19).text) : null,
+                collectNumber: orderRow.getCell(22).text ? orderRow.getCell(22).text : null
             }
         })
     }

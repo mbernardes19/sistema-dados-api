@@ -12,4 +12,5 @@ export default interface OrderedItemDto {
     deliveryDate: Date;
     invoiceNumber: string;
     invoiceEmissionDate: Date;
+    collectNumber: string;
 }
