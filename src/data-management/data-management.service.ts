@@ -80,15 +80,15 @@ export class DataManagementService {
 
       // }
       // console.log(spreadsheet.rowCount)
-      await this.orderedItemRepository.clear();
-      await this.orderRepository.delete({});
+      await this.clearDatabase()
       this.dataSeed = this.spreadsheetService.toDataSeed(spreadsheet);
       await this.populateOrders()
       this.updateStatus = 'done';
   }
 
   async clearDatabase(): Promise<void> {
-    await this.orderedItemRepository.clear()
+    await this.orderedItemRepository.clear();
+    await this.orderRepository.delete({});
   }
 
   private async populateOrders(): Promise<void> {
