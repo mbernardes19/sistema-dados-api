@@ -9,7 +9,6 @@ import { Item } from 'src/model/item.entity';
 import { ProdServInfo } from 'src/model/prod-serv-info.entity';
 import { OrderedItem } from 'src/model/ordered-item.entity';
 import OrderedItemDto from './interfaces/ordered-item-dto';
-import InvalidSpreadsheetStructureError from './errors/InvalidSpreadsheetStructure';
 
 @Injectable()
 export class DataManagementService {
@@ -23,16 +22,73 @@ export class DataManagementService {
   ) {}
 
   private dataSeed: DataSeed;
+  private updateStatus = 'not running';
 
-  async importDataFromXls(xlsFile: UploadedFile): Promise<void> {
+  async isDataFromXlsValid(xlsFile: UploadedFile): Promise<boolean> {
     const spreadsheet = await this.spreadsheetService.toSpreadsheet(xlsFile);
-    const isValid = this.spreadsheetService.isSpreadsheetValid(spreadsheet);
-    if (isValid) {
+    return this.spreadsheetService.isSpreadsheetValid(spreadsheet);
+  }
+
+  async updateDataFromXls(xlsFile: UploadedFile, page: number): Promise<void> {
+    this.updateStatus = 'running';
+    const spreadsheet = await this.spreadsheetService.toSpreadsheet(xlsFile);
+      // const totalRows = spreadsheet.rowCount; //36213
+      // const toRemove = Math.round(totalRows / 4) //9053
+      // console.log(page, spreadsheet.rowCount)
+      // switch(page) {
+      //   case 1:
+      //     // Total 36213 A A A A
+      //     spreadsheet.spliceRows(1, toRemove) // Total 27160 B A A A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(1, toRemove) // Total 18107 B B A A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(1, toRemove) // Total 9054 B B B A
+      //     console.log(spreadsheet.rowCount)
+      //     break;
+      //     // Total last 9054
+      //   case 2:
+      //     // Total 36213
+      //     spreadsheet.spliceRows(1, toRemove) // Total 27160 B A A A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(1, toRemove) // Total 18107 B B A A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(9053, toRemove) // Total 9054 B B A B
+      //     console.log(spreadsheet.rowCount)
+      //     break;
+      //     // Total penultimo last 9054
+      //   case 3:
+      //     // Total 36213
+      //     spreadsheet.spliceRows(1, toRemove) // Total 27160 B A A A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(9053, toRemove) // Total 18107 B A B A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(9053, toRemove) // Total 9054 B A B B
+      //     console.log(spreadsheet.rowCount)
+      //     break;
+      //     // Total penultimo penultimo last 9054
+      //   case 4:
+      //     // Total 36213
+      //     spreadsheet.spliceRows(9053, toRemove) // Total 27160 A B A A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(9053, toRemove) // Total 18107 A B B A
+      //     console.log(spreadsheet.rowCount)
+      //     spreadsheet.spliceRows(9053, toRemove) // Total 9054 A B B B
+      //     spreadsheet.spliceRows(1, 1);
+      //     console.log(spreadsheet.rowCount)
+      //     break;
+      //     // Total penultimo penultimo last 9054
+
+      // }
+      // console.log(spreadsheet.rowCount)
+      await this.orderedItemRepository.clear();
+      await this.orderRepository.delete({});
       this.dataSeed = this.spreadsheetService.toDataSeed(spreadsheet);
-      await this.populateOrders();
-    } else {
-      throw new InvalidSpreadsheetStructureError('Invalid spreadsheet structure');
-    }
+      await this.populateOrders()
+      this.updateStatus = 'done';
+  }
+
+  async clearDatabase(): Promise<void> {
+    await this.orderedItemRepository.clear()
   }
 
   private async populateOrders(): Promise<void> {
@@ -51,9 +107,8 @@ export class DataManagementService {
       order.enterprise = this.createEnterprise(data.enterpriseName);
       orders.push(order);
     })
-    await this.orderedItemRepository.clear();
-    // await this.orderRepository.query(`DELETE FROM Order`);
     await this.orderRepository.save(orders);
+    console.log('DONE!')
   }
 
   private createOrderedItems(orderedItemsDto: OrderedItemDto[]): OrderedItem[] {
@@ -74,9 +129,18 @@ export class DataManagementService {
         pendingQuantity: dto.pendingQuantity,
         deliveryDate: dto.deliveryDate,
         invoiceNumber: dto.invoiceNumber,
-        invoiceEmissionDate: dto.invoiceEmissionDate
+        invoiceEmissionDate: dto.invoiceEmissionDate,
+        collectNumber: dto.collectNumber
     }
     })
+  }
+
+  async getUpdateStatus() {
+    return this.updateStatus
+  }
+
+  async setUpdateStatus(status: string) {
+    return this.updateStatus = status;
   }
 
   private createEnterprise(enterpriseName: string): Enterprise {

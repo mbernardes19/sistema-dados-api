@@ -30,7 +30,7 @@ export class OrderedItem {
     @Column()
     pendingQuantity: number;
     
-    @Column()
+    @Column({ nullable: true })
     deliveryDate: Date;
 
     @Column({ nullable: true })
@@ -41,4 +41,7 @@ export class OrderedItem {
 
     @ManyToOne(() => Order, order => order.orderedItems)
     order?: Order
+
+    @Column({ nullable: true })
+    collectNumber: string
 }
