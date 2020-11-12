@@ -8,6 +8,7 @@ import EmptyUserError from './errors/EmptyUserError';
 import { Order } from 'src/model/order.entity';
 import { differenceInMilliseconds } from 'date-fns'
 import { Enterprise } from 'src/model/enterprise.entity';
+import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class UserService {
@@ -52,8 +53,8 @@ export class UserService {
         await this.userRepository.save(user);
     }
 
-    async getUserOrders(user: User): Promise<Order[]> {
-        return await this.enterpriseService.getEntepriseOrders(user.enterprise.name);
+    async getUserOrders(user: User, paginationOptions: IPaginationOptions): Promise<Order[]> {
+        return await this.enterpriseService.getEntepriseOrders(user.enterprise.name, paginationOptions);
     }
 
     async getAllUsersFromEnterprise(enterpriseName: string): Promise<User[]> {

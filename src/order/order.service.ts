@@ -1,7 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Order } from 'src/model/order.entity';
-import { differenceInMilliseconds } from 'date-fns';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions
+} from 'nestjs-typeorm-paginate'
 
 @Injectable()
 export class OrderService {
@@ -10,12 +14,12 @@ export class OrderService {
         private orderRepository: Repository<Order>
     ) {}
 
-    async getOrdersFromEnterprise(enterpriseName: string): Promise<Order[]> {
-        return await this.orderRepository.find({ order: { orderNumber: 'ASC'}, relations: ['orderedItems', 'enterprise'] , where: {enterprise: { name: enterpriseName }}})
+    async getOrdersFromEnterprise(enterpriseName: string, paginationOptions: IPaginationOptions): Promise<Pagination<Order>> {
+        return paginate<Order>(this.orderRepository, paginationOptions, {order: {orderNumber: 'ASC'}, relations: ['enterprise'], where: {enterprise: {name: enterpriseName}}});
     }
 
-    async getOrdersFromAllEnterprises(): Promise<Order[]> {
-        return await this.orderRepository.find({ order: { orderNumber: 'ASC'}, relations: ['orderedItems', 'enterprise'] })
+    async getOrdersFromAllEnterprises(paginationOptions: IPaginationOptions): Promise<Pagination<Order>> {
+        return paginate<Order>(this.orderRepository, paginationOptions, {order: {enterprise: 'ASC'}, relations: ['enterprise']});
     }
 
     async getOrderByNumber(orderNumber: string): Promise<Order> {
@@ -23,30 +27,12 @@ export class OrderService {
             where: {orderNumber},
             relations: ['orderedItems', 'enterprise', 'orderedItems.item', 'orderedItems.prodServInfo']
         }) 
-        const deliveryDate = this.getFarestDeliveryDate(order)
-        order.deliveryDate = deliveryDate;
-        // console.log('ORDER', order);
         return order;
     }
 
-    private getFarestDeliveryDate(order: Order): Date {
-        let difference = 0;
-        let farestDate = new Date();
-        order.orderedItems.map(item => {
-          if (item.deliveryDate) {
-            let diff;
-            if (item.deliveryDate > new Date()) {
-              diff = differenceInMilliseconds(item.deliveryDate, new Date())
-            } else {
-              diff = differenceInMilliseconds(new Date(), item.deliveryDate)
-            }
-            
-            if (diff > difference) {
-                difference = diff;
-                farestDate = item.deliveryDate;
-            }
-          }
-        })
-        return farestDate;
+    async paginate(options: IPaginationOptions): Promise<Pagination<Order>> {
+      const queryBuilder = this.orderRepository.createQueryBuilder('o');
+      queryBuilder.orderBy('o.orderNumber', 'ASC');
+      return paginate<Order>(this.orderRepository, options);
     }
 }

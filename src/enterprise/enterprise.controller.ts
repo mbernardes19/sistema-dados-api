@@ -17,7 +17,13 @@ export class EnterpriseController {
 
     @Roles('admin')
     @Get('orders')
-    getEnterpriseOrders(@Query('enterpriseName') enterpriseName: string) {
-        return this.enterpriseService.getEntepriseOrders(enterpriseName)
+    getEnterpriseOrders(
+        @Query('enterpriseName') enterpriseName: string,
+        @Query('page') page: number,
+        @Query('limit') limit: number
+    )
+    {
+        limit = limit > 100 ? 100 : limit;
+        return this.enterpriseService.getEntepriseOrders(enterpriseName, {page, limit})
     }
 }

@@ -7,6 +7,7 @@ import { Order } from 'src/model/order.entity';
 import { differenceInMilliseconds } from 'date-fns';
 import { User } from 'src/model/user.entity';
 import { UserService } from 'src/user/user.service';
+import {IPaginationOptions} from 'nestjs-typeorm-paginate'
 
 @Injectable()
 export class EnterpriseService {
@@ -35,39 +36,41 @@ export class EnterpriseService {
       return await this.enterpriseRepository.find();
     }
 
-    async getEntepriseOrders(enterpriseName: string): Promise<Order[]> {
+    async getEntepriseOrders(enterpriseName: string, paginationOptions: IPaginationOptions): Promise<Order[]> {
       let orders;
       if (!enterpriseName) {
-        orders = await this.orderService.getOrdersFromAllEnterprises();
+        orders = await this.orderService.getOrdersFromAllEnterprises(paginationOptions);
       } else {
-        orders = await this.orderService.getOrdersFromEnterprise(enterpriseName);
+        orders = await this.orderService.getOrdersFromEnterprise(enterpriseName, paginationOptions);
       }
-      const ordersWithDeliveryDate = orders.map(order => {
-        const deliveryDate = this.getFarestDeliveryDate(order)
-        order.deliveryDate = deliveryDate;
-        return order;
-      })
-      return ordersWithDeliveryDate;
+      return orders;
+      // const ordersWithDeliveryDate: Order[] = orders.map(order => {
+      //   const deliveryDate = this.getFarestDeliveryDate(order)
+      //   order.deliveryDate = deliveryDate;
+      //   return order;
+      // })
+      // return ordersWithDeliveryDate; 
+      // return ordersWithDeliveryDate.sort((a, b) => (a.enterprise.name < b.enterprise.name) ? -1 : (a.enterprise.name > b.enterprise.name) ? 1 : 0)
     }
 
-    private getFarestDeliveryDate(order: Order): Date {
-      let difference = 0;
-      let farestDate = new Date();
-      order.orderedItems.map(item => {
-        if (item.deliveryDate) {
-          let diff;
-          if (item.deliveryDate > new Date()) {
-            diff = differenceInMilliseconds(item.deliveryDate, new Date())
-          } else {
-            diff = differenceInMilliseconds(new Date(), item.deliveryDate)
-          }
+    // private getFarestDeliveryDate(order: Order): Date {
+    //   let difference = 0;
+    //   let farestDate = new Date();
+    //   order.orderedItems.map(item => {
+    //     if (item.deliveryDate) {
+    //       let diff;
+    //       if (item.deliveryDate > new Date()) {
+    //         diff = differenceInMilliseconds(item.deliveryDate, new Date())
+    //       } else {
+    //         diff = differenceInMilliseconds(new Date(), item.deliveryDate)
+    //       }
           
-          if (diff > difference) {
-              difference = diff;
-              farestDate = item.deliveryDate;
-          }
-        }
-      })
-      return farestDate;
-    }
+    //       if (diff > difference) {
+    //           difference = diff;
+    //           farestDate = item.deliveryDate;
+    //       }
+    //     }
+    //   })
+    //   return farestDate;
+    // }
   }
