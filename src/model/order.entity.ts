@@ -34,6 +34,9 @@ export class Order {
     @Column()
     collectionNumber: string;
 
+    @Column({ nullable: true })
+    deliveryDate?: Date;
+
     @ManyToOne(() => Enterprise, enterprise => enterprise.orders, {
         cascade: ['insert']
     })
@@ -43,6 +46,4 @@ export class Order {
         nullable: true
     })
     user: User
-
-    deliveryDate?: Date;
 }

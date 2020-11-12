@@ -5,6 +5,7 @@ import DataSeeder, { DataSeed } from 'src/data-management/interfaces/data-seeder
 import OrderDto from 'src/data-management/interfaces/order-dto';
 import onlyUnique from '../../utils/array'
 import OrderedItemDto from 'src/data-management/interfaces/ordered-item-dto';
+import { differenceInMilliseconds, closestTo } from 'date-fns';
 
 @Injectable()
 export class SpreadsheetService implements DataSeeder {
@@ -96,20 +97,49 @@ export class SpreadsheetService implements DataSeeder {
         const OcItemNumber = orderRows[0].getCell(8).text;
         const billingPredictionDate = orderRows[0].getCell(17).text === '00/00/0000' ? null : new Date(orderRows[0].getCell(17).text);
         const collectionNumber = orderRows[0].getCell(21).text;
+        const orderedItems = this.getOrdersOrderedItems(orderRows);
+        const deliveryDate: Date = this.getFarestDeliveryDate(orderedItems)
 
         return {
             enterpriseName,
             orderNumber,
-            orderedItems: this.getOrdersOrderedItems(orderRows),
+            orderedItems,
             orderStatus,
             orderCode,
             emissionDate,
             OcNumber,
             OcItemNumber,
             billingPredictionDate: billingPredictionDate,
-            collectionNumber
+            collectionNumber,
+            deliveryDate: deliveryDate ? deliveryDate : null
         }
     }
+
+    private getFarestDeliveryDate(orderedItemDto: OrderedItemDto[]): Date {
+        let difference = 0;
+        let farestDate = null;
+        const ord = orderedItemDto.filter(orderedItem => orderedItem.deliveryDate && orderedItem.deliveryDate > new Date())
+        if (ord.length > 0) {
+            ord.map(item => {
+                const diff = differenceInMilliseconds(item.deliveryDate, new Date());
+                if (diff > difference) {
+                    difference = diff;
+                    farestDate = item.deliveryDate;
+                }
+            })
+            return farestDate;
+        } else {
+            const dates = orderedItemDto.map(item => {
+                if (item.deliveryDate)
+                    return item.deliveryDate
+            });
+            farestDate = closestTo(new Date(), dates)
+            if (!farestDate) {
+                return null;
+            }
+            return farestDate
+        }
+      }
 
     private getOrderRows(spreadsheet: Worksheet, orderNumber: string): Row[]  {
         const orderRows: Row[] = []

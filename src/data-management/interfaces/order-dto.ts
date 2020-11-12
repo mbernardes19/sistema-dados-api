@@ -13,4 +13,5 @@ export default interface OrderDto {
     billingPredictionDate: Date;
     collectionNumber: string;
     user?: UserDto;
+    deliveryDate?: Date
 }

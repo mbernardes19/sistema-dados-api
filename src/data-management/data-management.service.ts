@@ -105,6 +105,7 @@ export class DataManagementService {
       order.orderStatus = data.orderStatus;
       order.orderedItems = this.createOrderedItems(data.orderedItems)
       order.enterprise = this.createEnterprise(data.enterpriseName);
+      order.deliveryDate = data.deliveryDate;
       orders.push(order);
     })
     await this.orderRepository.save(orders);
