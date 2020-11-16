@@ -20,7 +20,7 @@ export class DataManagementController {
   @UseInterceptors(FileInterceptor('file'))
   async checkDataToImport(@UploadedFile() file: UploadedFile) {
     try {
-      const isValid = this.dataManagementService.isDataFromXlsValid(file);
+      const isValid = await this.dataManagementService.isDataFromXlsValid(file);
       if (isValid) {
         return {status: true, statusCode: HttpStatus.OK}
       } else {

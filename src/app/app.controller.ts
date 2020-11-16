@@ -36,6 +36,7 @@ export class AppController {
         throw new HttpException('Por favor, preencha todas os dados', HttpStatus.BAD_REQUEST)
       }
       else {
+        console.log(err)
         throw new HttpException('Erro ao registrar usuário. Por favor, tente novamente mais tarde.', HttpStatus.BAD_REQUEST)
       }
     }
